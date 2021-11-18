@@ -1,0 +1,20 @@
+15.5  Clustering Texts by Topic
+In Section Ten, we introduced 2 clustering algorithms; K-means and DBSCAN. K-means can only cluster on Euclidean distance. Conversely, DBSCAN, can cluster based on any distance metric. One possible metric is cosine distance which equals 1 minus cosine similarity.
+
+NOTE: Why use cosine distance instead of cosine similarity? Well, all clustering algorithms assume that two identical data-points share a distance of 0. Meanwhile, the cosine similarity equals 0 if two data-points have nothing in common. Also, it equals 1 when two data-points are perfectly identical. We can fix this discrepancy by running 1 - cosine_similarity_matrix, thus converting our result to cosine distance. After the conversion, two identical texts will share a cosine distance of 0.
+
+Cosine distance is commonly used in conjunction with DBSCAN. That is why Scikit-Learn’s DBSCAN implementation permits us to specify cosine distance directly during object initialization. We simply need to pass metric=’cosine’ into the class constructor. This will initialize a cluster_model object that’s set to cluster based on cosine distance.
+
+NOTE
+Scikit-Learn’s DBSCAN implementation will compute cosine distance by first recomputing cosine_similarity_matrix. Alternatively, we can avoid the recomputation, by passing metric=’precomputed’ into the constructor. This will initialize a cluster_model object, that’s set to cluster on a matrix of precomputed distances. Next, running cluster_model.fit_transform(1 - cosine_similarity_matrix) should theoretically return the clustering results. However, practically speaking, negative values in the distance matrix (which can arise from floating-point errors) could cause issues during clustering. All negative values in the distance matrix must be replaced by zero, prior to clustering. This operation would need to be run manually in NumPy, by executing x[x < 0] = 0 where x = 1 - cosine_similarity_matrix.
+
+Lets cluster shrunk_matrix with DBSCAN, based on cosine distance. During clustering, we will make the following reasonable assumptions:
+
+2 newgroup posts fall within a cluster if they share a cosine similarity of at-least 0.6 (which corresponds to a cosine distance of no greater than 0.4).
+A cluster contains at-least 50 newgroup posts.
+Based on these assumptions, the algorithm’s eps and min_samples parameters should equal 0.4 and 50, respectively. Thus, we’ll initialize DBSCAN by running DBSCAN(eps=0.4, min_samples=50, metric='cosine'). Subsequently, we’ll leverage the initialized cluster_model object in order to cluster shrunk_matrix.
+
+from sklearn.cluster import DBSCAN
+cluster_model = DBSCAN(eps=0.4, min_samples=50, metric='cosine')
+clusters = cluster_model.fit_predict(shrunk_matrix)
+

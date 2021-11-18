@@ -1,0 +1,10 @@
+name: beta-test
+channels:
+  - conda-forge
+dependencies:
+  - decorator=5.0.9
+  - pandas
+  - matplotlib
+  - jupyter
+  - networkx
+  - pyvis
